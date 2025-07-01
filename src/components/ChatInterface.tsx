@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { bot, message-circle, user } from "lucide-react";
+import { Bot, MessageCircle, User } from "lucide-react";
 
 interface Message {
   id: string;
@@ -184,7 +183,7 @@ const ChatInterface = () => {
     <Card className="w-full max-w-4xl mx-auto h-[600px] flex flex-col">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
-          <bot className="w-6 h-6 text-blue-600" />
+          <Bot className="w-6 h-6 text-blue-600" />
           Smart Assistant Chat
         </CardTitle>
         <p className="text-sm text-gray-600">
@@ -210,9 +209,9 @@ const ChatInterface = () => {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       {message.isUser ? (
-                        <user className="w-4 h-4" />
+                        <User className="w-4 h-4" />
                       ) : (
-                        <bot className="w-4 h-4" />
+                        <Bot className="w-4 h-4" />
                       )}
                       <span className="text-sm font-medium">
                         {message.isUser ? 'You' : 'Assistant'}
@@ -241,7 +240,7 @@ const ChatInterface = () => {
               <div className="flex justify-start">
                 <div className="bg-gray-100 p-4 rounded-lg max-w-[80%]">
                   <div className="flex items-center gap-2">
-                    <bot className="w-4 h-4" />
+                    <Bot className="w-4 h-4" />
                     <span className="text-sm font-medium">Assistant</span>
                   </div>
                   <div className="flex items-center gap-1 mt-2">

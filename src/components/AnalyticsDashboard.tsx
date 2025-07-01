@@ -34,7 +34,6 @@ const AnalyticsDashboard = () => {
   const generateInsights = (data: ChatData[]) => {
     if (data.length === 0) return;
 
-    // Category analysis
     const categoryCount = data.reduce((acc, item) => {
       acc[item.category] = (acc[item.category] || 0) + 1;
       return acc;
@@ -43,7 +42,6 @@ const AnalyticsDashboard = () => {
     const mostPopularCategory = Object.entries(categoryCount)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || 'general';
 
-    // Sentiment analysis
     const sentimentCount = data.reduce((acc, item) => {
       acc[item.sentiment] = (acc[item.sentiment] || 0) + 1;
       return acc;
@@ -52,7 +50,6 @@ const AnalyticsDashboard = () => {
     const dominantSentiment = Object.entries(sentimentCount)
       .sort(([,a], [,b]) => b - a)[0]?.[0] || 'neutral';
 
-    // Time analysis
     const hourCount = data.reduce((acc, item) => {
       const hour = new Date(item.timestamp).getHours();
       acc[hour] = (acc[hour] || 0) + 1;
@@ -77,8 +74,17 @@ const AnalyticsDashboard = () => {
       return acc;
     }, {} as Record<string, number>);
 
+    const categoryLabels = {
+      'evenements-culturels': 'événements culturels',
+      'programmes-jeunesse': 'programmes jeunesse',
+      'documents': 'documents',
+      'plaintes': 'plaintes',
+      'informations': 'informations',
+      'general': 'général'
+    };
+
     return Object.entries(categoryCount).map(([category, count]) => ({
-      name: category.replace('-', ' '),
+      name: categoryLabels[category as keyof typeof categoryLabels] || category,
       value: count
     }));
   };
@@ -89,8 +95,14 @@ const AnalyticsDashboard = () => {
       return acc;
     }, {} as Record<string, number>);
 
+    const sentimentLabels = {
+      'positive': 'positif',
+      'negative': 'négatif',
+      'neutral': 'neutre'
+    };
+
     return Object.entries(sentimentCount).map(([sentiment, count]) => ({
-      name: sentiment,
+      name: sentimentLabels[sentiment as keyof typeof sentimentLabels] || sentiment,
       value: count
     }));
   };
@@ -103,7 +115,7 @@ const AnalyticsDashboard = () => {
     }, {} as Record<string, number>);
 
     return Object.entries(dailyCount).map(([date, count]) => ({
-      date: new Date(date).toLocaleDateString(),
+      date: new Date(date).toLocaleDateString('fr-FR'),
       interactions: count
     }));
   };
@@ -118,71 +130,79 @@ const AnalyticsDashboard = () => {
     }
   };
 
+  const getSentimentLabel = (sentiment: string) => {
+    switch (sentiment) {
+      case 'positive': return 'positif';
+      case 'negative': return 'négatif';
+      default: return 'neutre';
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Key Metrics */}
+      {/* Métriques Clés */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Interactions</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Total des Interactions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{insights.totalInteractions}</div>
-            <p className="text-xs text-gray-500 mt-1">Citizen conversations</p>
+            <p className="text-xs text-gray-500 mt-1">Conversations citoyennes</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Most Popular Category</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Catégorie la Plus Populaire</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-lg font-semibold text-purple-600 capitalize">
               {insights.mostPopularCategory}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Top citizen interest</p>
+            <p className="text-xs text-gray-500 mt-1">Principal intérêt citoyen</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Dominant Sentiment</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Sentiment Dominant</CardTitle>
           </CardHeader>
           <CardContent>
             <Badge className={getSentimentColor(insights.averageSentiment)}>
-              {insights.averageSentiment}
+              {getSentimentLabel(insights.averageSentiment)}
             </Badge>
-            <p className="text-xs text-gray-500 mt-1">Overall mood</p>
+            <p className="text-xs text-gray-500 mt-1">Humeur générale</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Peak Hours</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-600">Heures de Pointe</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-lg font-semibold text-orange-600">
               {insights.peakHours}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Highest activity</p>
+            <p className="text-xs text-gray-500 mt-1">Activité la plus élevée</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Charts */}
+      {/* Graphiques */}
       <Tabs defaultValue="categories" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="categories">Request Categories</TabsTrigger>
-          <TabsTrigger value="sentiment">Sentiment Analysis</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="categories">Catégories de Demandes</TabsTrigger>
+          <TabsTrigger value="sentiment">Analyse des Sentiments</TabsTrigger>
+          <TabsTrigger value="timeline">Chronologie</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Citizen Request Categories</CardTitle>
+              <CardTitle>Catégories de Demandes Citoyennes</CardTitle>
               <p className="text-sm text-gray-600">
-                Distribution of citizen requests by category
+                Distribution des demandes citoyennes par catégorie
               </p>
             </CardHeader>
             <CardContent>
@@ -204,9 +224,9 @@ const AnalyticsDashboard = () => {
         <TabsContent value="sentiment" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Sentiment Analysis</CardTitle>
+              <CardTitle>Analyse des Sentiments</CardTitle>
               <p className="text-sm text-gray-600">
-                Citizen satisfaction and emotional response patterns
+                Modèles de satisfaction citoyenne et de réponse émotionnelle
               </p>
             </CardHeader>
             <CardContent>
@@ -238,9 +258,9 @@ const AnalyticsDashboard = () => {
         <TabsContent value="timeline" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Interaction Timeline</CardTitle>
+              <CardTitle>Chronologie des Interactions</CardTitle>
               <p className="text-sm text-gray-600">
-                Daily citizen interaction patterns
+                Modèles d'interaction citoyenne quotidienne
               </p>
             </CardHeader>
             <CardContent>
@@ -260,29 +280,29 @@ const AnalyticsDashboard = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Insights and Recommendations */}
+      {/* Aperçus et Recommandations */}
       <Card>
         <CardHeader>
-          <CardTitle>AI Insights & Recommendations</CardTitle>
+          <CardTitle>Aperçus IA et Recommandations</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <h4 className="font-semibold text-gray-900">Cultural Behavior Patterns</h4>
+              <h4 className="font-semibold text-gray-900">Modèles de Comportement Culturel</h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Youth show high interest in digital cultural programs</li>
-                <li>• Event participation requests peak during weekends</li>
-                <li>• Traditional cultural events need more promotion</li>
-                <li>• Online workshops have higher engagement rates</li>
+                <li>• Les jeunes montrent un grand intérêt pour les programmes culturels numériques</li>
+                <li>• Les demandes de participation aux événements atteignent un pic pendant les week-ends</li>
+                <li>• Les événements culturels traditionnels nécessitent plus de promotion</li>
+                <li>• Les ateliers en ligne ont des taux d'engagement plus élevés</li>
               </ul>
             </div>
             <div className="space-y-2">
-              <h4 className="font-semibold text-gray-900">Recommendations</h4>
+              <h4 className="font-semibold text-gray-900">Recommandations</h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Increase digital cultural content offerings</li>
-                <li>• Schedule more weekend cultural activities</li>
-                <li>• Improve communication about traditional events</li>
-                <li>• Expand online program capacity</li>
+                <li>• Augmenter l'offre de contenu culturel numérique</li>
+                <li>• Programmer plus d'activités culturelles le week-end</li>
+                <li>• Améliorer la communication sur les événements traditionnels</li>
+                <li>• Élargir la capacité des programmes en ligne</li>
               </ul>
             </div>
           </div>

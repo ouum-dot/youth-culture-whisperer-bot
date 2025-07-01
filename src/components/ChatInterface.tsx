@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your AI assistant for the Ministry of Communication and Culture - Youth Department. I can help you with cultural events, youth programs, document requests, and general information. What would you like to know?',
+      text: 'Bonjour ! Je suis votre assistant IA pour le Ministère de la Communication et de la Culture - Département de la Jeunesse. Je peux vous aider avec les événements culturels, les programmes jeunesse, les demandes de documents et les informations générales. Que souhaitez-vous savoir ?',
       isUser: false,
       timestamp: new Date(),
       category: 'greeting',
@@ -41,31 +42,30 @@ const ChatInterface = () => {
 
   const categorizeMessage = (text: string): string => {
     const keywords = {
-      'cultural-events': ['event', 'festival', 'concert', 'exhibition', 'culture', 'art', 'show', 'performance', 'music', 'dance', 'theater'],
-      'youth-programs': ['youth', 'program', 'workshop', 'training', 'course', 'education', 'student', 'young', 'learning', 'skill'],
-      'documents': ['document', 'certificate', 'permit', 'license', 'application', 'form', 'paper', 'registration', 'approval'],
-      'complaints': ['complaint', 'problem', 'issue', 'dissatisfied', 'wrong', 'error', 'bad', 'disappointed', 'unhappy'],
-      'information': ['information', 'about', 'what', 'how', 'when', 'where', 'who', 'tell me', 'explain', 'details']
+      'evenements-culturels': ['événement', 'festival', 'concert', 'exposition', 'culture', 'art', 'spectacle', 'performance', 'musique', 'danse', 'théâtre'],
+      'programmes-jeunesse': ['jeunesse', 'programme', 'atelier', 'formation', 'cours', 'éducation', 'étudiant', 'jeune', 'apprentissage', 'compétence'],
+      'documents': ['document', 'certificat', 'permis', 'licence', 'demande', 'formulaire', 'papier', 'inscription', 'approbation'],
+      'plaintes': ['plainte', 'problème', 'question', 'insatisfait', 'incorrect', 'erreur', 'mauvais', 'déçu', 'mécontent'],
+      'informations': ['information', 'à propos', 'quoi', 'comment', 'quand', 'où', 'qui', 'dites-moi', 'expliquer', 'détails']
     };
 
     const lowercaseText = text.toLowerCase();
     
-    // Check for exact matches first
     for (const [category, words] of Object.entries(keywords)) {
       const matches = words.filter(word => lowercaseText.includes(word));
       if (matches.length > 0) {
-        console.log(`Message categorized as: ${category}, matched words: ${matches.join(', ')}`);
+        console.log(`Message catégorisé comme: ${category}, mots correspondants: ${matches.join(', ')}`);
         return category;
       }
     }
     
-    console.log('Message categorized as: general (no keywords matched)');
+    console.log('Message catégorisé comme: général (aucun mot-clé correspondant)');
     return 'general';
   };
 
   const analyzeSentiment = (text: string): 'positive' | 'neutral' | 'negative' => {
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'helpful', 'thank', 'love', 'like', 'awesome', 'fantastic'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'disappointed', 'angry', 'frustrated', 'problem', 'hate', 'dislike', 'horrible'];
+    const positiveWords = ['bon', 'excellent', 'génial', 'merveilleux', 'utile', 'merci', 'aime', 'fantastique'];
+    const negativeWords = ['mauvais', 'terrible', 'affreux', 'déçu', 'en colère', 'frustré', 'problème', 'déteste', 'horrible'];
     
     const lowercaseText = text.toLowerCase();
     const positiveCount = positiveWords.filter(word => lowercaseText.includes(word)).length;
@@ -77,58 +77,58 @@ const ChatInterface = () => {
   };
 
   const generateResponse = (userMessage: string, category: string): string => {
-    console.log(`Generating response for category: ${category}, message: ${userMessage}`);
+    console.log(`Génération de réponse pour la catégorie: ${category}, message: ${userMessage}`);
     
     const responses = {
-      'cultural-events': [
-        'We have exciting cultural events throughout the year! Our upcoming events include the Youth Cultural Festival featuring local artists, traditional music concerts, and art exhibitions. Visit our events calendar for specific dates and registration details.',
-        'Our cultural programs are designed to celebrate our heritage and promote artistic expression among youth. Current events include dance workshops, poetry competitions, and cultural exchange programs. Would you like information about a specific type of event?',
-        'The Ministry regularly organizes cultural activities such as art exhibitions, music festivals, traditional craft workshops, and cultural heritage tours. These events are free for youth participants and often include certificates of participation.'
+      'evenements-culturels': [
+        'Nous avons des événements culturels passionnants tout au long de l\'année ! Nos prochains événements incluent le Festival Culturel de la Jeunesse avec des artistes locaux, des concerts de musique traditionnelle et des expositions d\'art. Consultez notre calendrier d\'événements pour les dates et détails d\'inscription.',
+        'Nos programmes culturels sont conçus pour célébrer notre patrimoine et promouvoir l\'expression artistique chez les jeunes. Les événements actuels incluent des ateliers de danse, des concours de poésie et des programmes d\'échange culturel. Souhaitez-vous des informations sur un type d\'événement spécifique ?',
+        'Le Ministère organise régulièrement des activités culturelles telles que des expositions d\'art, des festivals de musique, des ateliers d\'artisanat traditionnel et des visites du patrimoine culturel. Ces événements sont gratuits pour les participants jeunes et incluent souvent des certificats de participation.'
       ],
-      'youth-programs': [
-        'We offer comprehensive youth development programs including: Leadership Training (monthly workshops), Digital Skills Bootcamp (3-month program), Creative Arts Academy (ongoing), Cultural Ambassador Program, and Career Mentorship. All programs are free for participants aged 16-30.',
-        'Our youth initiatives focus on skill development, cultural awareness, and leadership. Current programs include entrepreneurship workshops, public speaking training, cultural preservation projects, and international exchange opportunities. Which area interests you most?',
-        'Youth programs available now: 1) Digital Media Training (starts monthly), 2) Traditional Arts Workshop, 3) Leadership Development Course, 4) Language Exchange Program, 5) Community Service Projects. Registration is open year-round.'
+      'programmes-jeunesse': [
+        'Nous offrons des programmes complets de développement de la jeunesse incluant : Formation en Leadership (ateliers mensuels), Bootcamp de Compétences Numériques (programme de 3 mois), Académie des Arts Créatifs (en continu), Programme d\'Ambassadeur Culturel et Mentorat de Carrière. Tous les programmes sont gratuits pour les participants âgés de 16 à 30 ans.',
+        'Nos initiatives jeunesse se concentrent sur le développement des compétences, la sensibilisation culturelle et le leadership. Les programmes actuels incluent des ateliers d\'entrepreneuriat, de formation en prise de parole en public, des projets de préservation culturelle et des opportunités d\'échange international. Quel domaine vous intéresse le plus ?',
+        'Programmes jeunesse disponibles maintenant : 1) Formation Médias Numériques (débute mensuellement), 2) Atelier Arts Traditionnels, 3) Cours de Développement du Leadership, 4) Programme d\'Échange Linguistique, 5) Projets de Service Communautaire. L\'inscription est ouverte toute l\'année.'
       ],
       'documents': [
-        'For document services, please provide: Full name, contact information, and document type needed. Available documents include: Event participation certificates, Youth program completion certificates, Cultural program permits, and Official letters of recommendation. Processing time is 3-5 business days.',
-        'Document requests can be submitted online or in-person at our office. Required documents vary by type: ID copy, application form, and relevant supporting materials. Fees apply for some services. What specific document do you need?',
-        'We issue various certificates and permits: Youth program certificates, Cultural event permits, Volunteer service certificates, and Official ministry letters. Please specify which document you need and I\'ll guide you through the application process.'
+        'Pour les services de documents, veuillez fournir : nom complet, informations de contact et type de document nécessaire. Documents disponibles : certificats de participation aux événements, certificats d\'achèvement des programmes jeunesse, permis de programmes culturels et lettres de recommandation officielles. Le délai de traitement est de 3 à 5 jours ouvrables.',
+        'Les demandes de documents peuvent être soumises en ligne ou en personne à notre bureau. Les documents requis varient selon le type : copie de pièce d\'identité, formulaire de demande et documents de soutien pertinents. Des frais s\'appliquent pour certains services. Quel document spécifique vous faut-il ?',
+        'Nous délivrons divers certificats et permis : certificats de programmes jeunesse, permis d\'événements culturels, certificats de service bénévole et lettres officielles du ministère. Veuillez préciser quel document vous avez besoin et je vous guiderai dans le processus de demande.'
       ],
-      'complaints': [
-        'I understand your concern and want to help resolve this issue. Please provide specific details about the problem, including: What happened, when it occurred, and what outcome you\'re seeking. We take all feedback seriously and will investigate promptly.',
-        'Thank you for bringing this to our attention. To properly address your complaint: 1) Please describe the specific issue, 2) Provide relevant dates/times, 3) Include any reference numbers if applicable. We aim to resolve complaints within 7 business days.',
-        'We apologize for any inconvenience experienced. Your feedback helps us improve our services. Please share more details about the situation so we can investigate and provide an appropriate resolution. A complaint reference number will be provided.'
+      'plaintes': [
+        'Je comprends votre préoccupation et veux aider à résoudre ce problème. Veuillez fournir des détails spécifiques sur le problème, incluant : ce qui s\'est passé, quand cela s\'est produit et quel résultat vous recherchez. Nous prenons tous les commentaires au sérieux et enquêterons rapidement.',
+        'Merci de porter cela à notre attention. Pour traiter correctement votre plainte : 1) Veuillez décrire le problème spécifique, 2) Fournir les dates/heures pertinentes, 3) Inclure tous numéros de référence si applicable. Nous visons à résoudre les plaintes dans les 7 jours ouvrables.',
+        'Nous nous excusons pour tout inconvénient rencontré. Vos commentaires nous aident à améliorer nos services. Veuillez partager plus de détails sur la situation afin que nous puissions enquêter et fournir une résolution appropriée. Un numéro de référence de plainte sera fourni.'
       ],
-      'information': [
-        'I can provide information about: Cultural events and festivals, Youth development programs, Document services and applications, Ministry contact details, Office hours and locations, and General ministry services. What specific information would you like?',
-        'The Ministry of Communication and Culture - Youth Department serves young people aged 16-30 with cultural programs, skill development opportunities, and support services. We operate Monday-Friday 8AM-5PM. What would you like to know more about?',
-        'Our services include: Organizing cultural events, Providing youth development programs, Issuing certificates and permits, Supporting cultural preservation, and Facilitating community engagement. How can I assist you with any of these areas?'
+      'informations': [
+        'Je peux fournir des informations sur : les événements et festivals culturels, les programmes de développement jeunesse, les services et demandes de documents, les coordonnées du ministère, les heures et lieux de bureau, et les services généraux du ministère. Quelle information spécifique souhaitez-vous ?',
+        'Le Ministère de la Communication et de la Culture - Département de la Jeunesse sert les jeunes âgés de 16 à 30 ans avec des programmes culturels, des opportunités de développement des compétences et des services de soutien. Nous opérons du lundi au vendredi de 8h à 17h. Que souhaitez-vous savoir de plus ?',
+        'Nos services incluent : organiser des événements culturels, fournir des programmes de développement jeunesse, délivrer des certificats et permis, soutenir la préservation culturelle et faciliter l\'engagement communautaire. Comment puis-je vous aider dans l\'un de ces domaines ?'
       ],
       'general': [
-        'Hello! I\'m here to help with questions about our cultural programs, youth services, document requests, or general ministry information. Our main focus is supporting young people through cultural engagement and skill development. What would you like to know?',
-        'The Ministry of Communication and Culture - Youth Department promotes cultural heritage while supporting youth development. We offer programs, events, and services for young people aged 16-30. How can I assist you today?',
-        'I can help you with information about cultural events, youth programs, document applications, or any other ministry-related questions. Please let me know what specific assistance you need.'
+        'Bonjour ! Je suis là pour aider avec les questions sur nos programmes culturels, services jeunesse, demandes de documents ou informations générales du ministère. Notre objectif principal est de soutenir les jeunes à travers l\'engagement culturel et le développement des compétences. Que souhaitez-vous savoir ?',
+        'Le Ministère de la Communication et de la Culture - Département de la Jeunesse promeut le patrimoine culturel tout en soutenant le développement des jeunes. Nous offrons des programmes, événements et services pour les jeunes âgés de 16 à 30 ans. Comment puis-je vous aider aujourd\'hui ?',
+        'Je peux vous aider avec des informations sur les événements culturels, programmes jeunesse, demandes de documents ou toute autre question liée au ministère. Veuillez me faire savoir quelle assistance spécifique vous avez besoin.'
       ]
     };
 
     const categoryResponses = responses[category as keyof typeof responses] || responses.general;
     const selectedResponse = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
-    console.log(`Selected response: ${selectedResponse}`);
+    console.log(`Réponse sélectionnée: ${selectedResponse}`);
     return selectedResponse;
   };
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) {
       toast({
-        title: "Empty message",
-        description: "Please enter a message before sending.",
+        title: "Message vide",
+        description: "Veuillez saisir un message avant d'envoyer.",
         variant: "destructive"
       });
       return;
     }
 
-    console.log(`User sent message: ${inputValue}`);
+    console.log(`L'utilisateur a envoyé le message: ${inputValue}`);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -144,7 +144,6 @@ const ChatInterface = () => {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI response delay
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -158,7 +157,6 @@ const ChatInterface = () => {
       setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
       
-      // Store data for analytics
       const chatData = {
         userMessage: userMessage.text,
         category: userMessage.category,
@@ -172,11 +170,11 @@ const ChatInterface = () => {
       analytics.push(chatData);
       localStorage.setItem('chatAnalytics', JSON.stringify(analytics));
       
-      console.log('Chat interaction saved to analytics');
+      console.log('Interaction de chat sauvegardée dans les analyses');
       
       toast({
-        title: "Response generated",
-        description: `Your ${userMessage.category} inquiry has been processed.`,
+        title: "Réponse générée",
+        description: `Votre demande ${userMessage.category} a été traitée.`,
       });
     }, 1200);
   };
@@ -198,12 +196,12 @@ const ChatInterface = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'cultural-events': 'bg-purple-100 text-purple-800',
-      'youth-programs': 'bg-blue-100 text-blue-800',
+      'evenements-culturels': 'bg-purple-100 text-purple-800',
+      'programmes-jeunesse': 'bg-blue-100 text-blue-800',
       'documents': 'bg-yellow-100 text-yellow-800',
-      'complaints': 'bg-red-100 text-red-800',
+      'plaintes': 'bg-red-100 text-red-800',
       'general': 'bg-gray-100 text-gray-800',
-      'information': 'bg-teal-100 text-teal-800',
+      'informations': 'bg-teal-100 text-teal-800',
       'response': 'bg-indigo-100 text-indigo-800'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
@@ -214,10 +212,10 @@ const ChatInterface = () => {
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-blue-600" />
-          Ministry Youth Assistant
+          Assistant Jeunesse du Ministère
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Ask about cultural events, youth programs, documents, or any ministry services
+          Posez des questions sur les événements culturels, programmes jeunesse, documents ou services du ministère
         </p>
       </CardHeader>
       
@@ -244,7 +242,7 @@ const ChatInterface = () => {
                         <Bot className="w-4 h-4" />
                       )}
                       <span className="text-sm font-medium">
-                        {message.isUser ? 'You' : 'Ministry Assistant'}
+                        {message.isUser ? 'Vous' : 'Assistant du Ministère'}
                       </span>
                     </div>
                     <p className="text-sm leading-relaxed">{message.text}</p>
@@ -257,7 +255,7 @@ const ChatInterface = () => {
                       </Badge>
                       {message.sentiment && (
                         <Badge variant="outline" className={getSentimentColor(message.sentiment)}>
-                          {message.sentiment}
+                          {message.sentiment === 'positive' ? 'positif' : message.sentiment === 'negative' ? 'négatif' : 'neutre'}
                         </Badge>
                       )}
                     </div>
@@ -271,7 +269,7 @@ const ChatInterface = () => {
                 <div className="bg-gray-50 border p-4 rounded-lg max-w-[85%]">
                   <div className="flex items-center gap-2">
                     <Bot className="w-4 h-4" />
-                    <span className="text-sm font-medium">Ministry Assistant</span>
+                    <span className="text-sm font-medium">Assistant du Ministère</span>
                   </div>
                   <div className="flex items-center gap-1 mt-2">
                     <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
@@ -292,7 +290,7 @@ const ChatInterface = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about cultural events, youth programs, documents, or any questions..."
+              placeholder="Posez des questions sur les événements culturels, programmes jeunesse, documents ou toute question..."
               className="flex-1"
               disabled={isTyping}
             />
@@ -301,11 +299,11 @@ const ChatInterface = () => {
               disabled={!inputValue.trim() || isTyping}
               className="min-w-[80px]"
             >
-              {isTyping ? 'Sending...' : 'Send'}
+              {isTyping ? 'Envoi...' : 'Envoyer'}
             </Button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Press Enter to send • The assistant can help with ministry services and information
+            Appuyez sur Entrée pour envoyer • L'assistant peut aider avec les services et informations du ministère
           </p>
         </div>
       </CardContent>

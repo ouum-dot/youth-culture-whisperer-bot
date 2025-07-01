@@ -16,21 +16,21 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Ministry of Communication and Culture
+              Ministère de la Communication et de la Culture
             </h1>
-            <p className="text-xl text-gray-600 mb-2">Youth Department - Smart Assistant</p>
+            <p className="text-xl text-gray-600 mb-2">Département de la Jeunesse - Assistant Intelligent</p>
             <p className="text-gray-500">
-              Your AI-powered assistant for cultural programs, youth services, and citizen support
+              Votre assistant IA pour les programmes culturels, services jeunesse et support citoyen
             </p>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="chat" className="text-lg py-3">
-                Chat Assistant
+                Assistant de Discussion
               </TabsTrigger>
               <TabsTrigger value="analytics" className="text-lg py-3">
-                Analytics Dashboard
+                Tableau de Bord Analytique
               </TabsTrigger>
             </TabsList>
 

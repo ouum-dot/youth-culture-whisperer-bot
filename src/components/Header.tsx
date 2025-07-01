@@ -13,17 +13,17 @@ const Header = () => {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                Ministry of Communication & Culture
+                Ministère de la Communication et Culture
               </h2>
-              <p className="text-sm text-gray-600">Youth Department</p>
+              <p className="text-sm text-gray-600">Département de la Jeunesse</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Online
+              En ligne
             </Badge>
             <Badge variant="outline">
-              AI Assistant v2.0
+              Assistant IA v2.0
             </Badge>
           </div>
         </div>

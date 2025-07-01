@@ -21,7 +21,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your AI assistant for the Ministry of Communication and Culture - Youth Department. How can I help you today?',
+      text: 'Hello! I\'m your AI assistant for the Ministry of Communication and Culture - Youth Department. I can help you with cultural events, youth programs, document requests, and general information. What would you like to know?',
       isUser: false,
       timestamp: new Date(),
       category: 'greeting',
@@ -41,25 +41,31 @@ const ChatInterface = () => {
 
   const categorizeMessage = (text: string): string => {
     const keywords = {
-      'cultural-events': ['event', 'festival', 'concert', 'exhibition', 'culture', 'art'],
-      'youth-programs': ['youth', 'program', 'workshop', 'training', 'course', 'education'],
-      'documents': ['document', 'certificate', 'permit', 'license', 'application'],
-      'complaints': ['complaint', 'problem', 'issue', 'dissatisfied', 'wrong'],
-      'information': ['information', 'about', 'what', 'how', 'when', 'where']
+      'cultural-events': ['event', 'festival', 'concert', 'exhibition', 'culture', 'art', 'show', 'performance', 'music', 'dance', 'theater'],
+      'youth-programs': ['youth', 'program', 'workshop', 'training', 'course', 'education', 'student', 'young', 'learning', 'skill'],
+      'documents': ['document', 'certificate', 'permit', 'license', 'application', 'form', 'paper', 'registration', 'approval'],
+      'complaints': ['complaint', 'problem', 'issue', 'dissatisfied', 'wrong', 'error', 'bad', 'disappointed', 'unhappy'],
+      'information': ['information', 'about', 'what', 'how', 'when', 'where', 'who', 'tell me', 'explain', 'details']
     };
 
     const lowercaseText = text.toLowerCase();
+    
+    // Check for exact matches first
     for (const [category, words] of Object.entries(keywords)) {
-      if (words.some(word => lowercaseText.includes(word))) {
+      const matches = words.filter(word => lowercaseText.includes(word));
+      if (matches.length > 0) {
+        console.log(`Message categorized as: ${category}, matched words: ${matches.join(', ')}`);
         return category;
       }
     }
+    
+    console.log('Message categorized as: general (no keywords matched)');
     return 'general';
   };
 
   const analyzeSentiment = (text: string): 'positive' | 'neutral' | 'negative' => {
-    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'helpful', 'thank'];
-    const negativeWords = ['bad', 'terrible', 'awful', 'disappointed', 'angry', 'frustrated', 'problem'];
+    const positiveWords = ['good', 'great', 'excellent', 'amazing', 'wonderful', 'helpful', 'thank', 'love', 'like', 'awesome', 'fantastic'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'disappointed', 'angry', 'frustrated', 'problem', 'hate', 'dislike', 'horrible'];
     
     const lowercaseText = text.toLowerCase();
     const positiveCount = positiveWords.filter(word => lowercaseText.includes(word)).length;
@@ -71,40 +77,58 @@ const ChatInterface = () => {
   };
 
   const generateResponse = (userMessage: string, category: string): string => {
+    console.log(`Generating response for category: ${category}, message: ${userMessage}`);
+    
     const responses = {
       'cultural-events': [
-        'We have several exciting cultural events coming up! Our youth cultural festival is next month featuring local artists and musicians.',
-        'For information about cultural events, please visit our events calendar. We regularly organize art exhibitions, music concerts, and cultural workshops.',
-        'Our upcoming cultural programs include traditional dance workshops, art exhibitions, and music festivals specifically designed for young people.'
+        'We have exciting cultural events throughout the year! Our upcoming events include the Youth Cultural Festival featuring local artists, traditional music concerts, and art exhibitions. Visit our events calendar for specific dates and registration details.',
+        'Our cultural programs are designed to celebrate our heritage and promote artistic expression among youth. Current events include dance workshops, poetry competitions, and cultural exchange programs. Would you like information about a specific type of event?',
+        'The Ministry regularly organizes cultural activities such as art exhibitions, music festivals, traditional craft workshops, and cultural heritage tours. These events are free for youth participants and often include certificates of participation.'
       ],
       'youth-programs': [
-        'We offer various youth programs including leadership training, digital skills workshops, and cultural exchange programs.',
-        'Our youth development programs focus on creativity, leadership, and cultural awareness. Would you like more details about any specific program?',
-        'Current youth programs include: Creative Arts Workshop, Leadership Development, Digital Media Training, and Cultural Heritage Program.'
+        'We offer comprehensive youth development programs including: Leadership Training (monthly workshops), Digital Skills Bootcamp (3-month program), Creative Arts Academy (ongoing), Cultural Ambassador Program, and Career Mentorship. All programs are free for participants aged 16-30.',
+        'Our youth initiatives focus on skill development, cultural awareness, and leadership. Current programs include entrepreneurship workshops, public speaking training, cultural preservation projects, and international exchange opportunities. Which area interests you most?',
+        'Youth programs available now: 1) Digital Media Training (starts monthly), 2) Traditional Arts Workshop, 3) Leadership Development Course, 4) Language Exchange Program, 5) Community Service Projects. Registration is open year-round.'
       ],
       'documents': [
-        'For document requests, please provide your full name, contact information, and specify which document you need. Processing typically takes 3-5 business days.',
-        'You can apply for permits and certificates through our online portal or visit our office. What specific document do you need assistance with?',
-        'Document services include: Event permits, Cultural program certificates, Youth program enrollment, and Official correspondence.'
+        'For document services, please provide: Full name, contact information, and document type needed. Available documents include: Event participation certificates, Youth program completion certificates, Cultural program permits, and Official letters of recommendation. Processing time is 3-5 business days.',
+        'Document requests can be submitted online or in-person at our office. Required documents vary by type: ID copy, application form, and relevant supporting materials. Fees apply for some services. What specific document do you need?',
+        'We issue various certificates and permits: Youth program certificates, Cultural event permits, Volunteer service certificates, and Official ministry letters. Please specify which document you need and I\'ll guide you through the application process.'
       ],
       'complaints': [
-        'I understand your concern. Please provide more details about the issue so we can address it properly. Your feedback helps us improve our services.',
-        'Thank you for bringing this to our attention. We take all feedback seriously. Can you please elaborate on the specific issue?',
-        'We apologize for any inconvenience. Please share more details about your concern so we can resolve it promptly.'
+        'I understand your concern and want to help resolve this issue. Please provide specific details about the problem, including: What happened, when it occurred, and what outcome you\'re seeking. We take all feedback seriously and will investigate promptly.',
+        'Thank you for bringing this to our attention. To properly address your complaint: 1) Please describe the specific issue, 2) Provide relevant dates/times, 3) Include any reference numbers if applicable. We aim to resolve complaints within 7 business days.',
+        'We apologize for any inconvenience experienced. Your feedback helps us improve our services. Please share more details about the situation so we can investigate and provide an appropriate resolution. A complaint reference number will be provided.'
+      ],
+      'information': [
+        'I can provide information about: Cultural events and festivals, Youth development programs, Document services and applications, Ministry contact details, Office hours and locations, and General ministry services. What specific information would you like?',
+        'The Ministry of Communication and Culture - Youth Department serves young people aged 16-30 with cultural programs, skill development opportunities, and support services. We operate Monday-Friday 8AM-5PM. What would you like to know more about?',
+        'Our services include: Organizing cultural events, Providing youth development programs, Issuing certificates and permits, Supporting cultural preservation, and Facilitating community engagement. How can I assist you with any of these areas?'
       ],
       'general': [
-        'I\'m here to help with any questions about our cultural programs, youth services, or ministry information. What would you like to know?',
-        'Our ministry focuses on promoting cultural heritage and supporting youth development. How can I assist you today?',
-        'Feel free to ask about our services, programs, events, or any other ministry-related topics.'
+        'Hello! I\'m here to help with questions about our cultural programs, youth services, document requests, or general ministry information. Our main focus is supporting young people through cultural engagement and skill development. What would you like to know?',
+        'The Ministry of Communication and Culture - Youth Department promotes cultural heritage while supporting youth development. We offer programs, events, and services for young people aged 16-30. How can I assist you today?',
+        'I can help you with information about cultural events, youth programs, document applications, or any other ministry-related questions. Please let me know what specific assistance you need.'
       ]
     };
 
     const categoryResponses = responses[category as keyof typeof responses] || responses.general;
-    return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+    const selectedResponse = categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+    console.log(`Selected response: ${selectedResponse}`);
+    return selectedResponse;
   };
 
   const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim()) {
+      toast({
+        title: "Empty message",
+        description: "Please enter a message before sending.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    console.log(`User sent message: ${inputValue}`);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -116,6 +140,7 @@ const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
@@ -123,7 +148,7 @@ const ChatInterface = () => {
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: generateResponse(inputValue, userMessage.category || 'general'),
+        text: generateResponse(currentInput, userMessage.category || 'general'),
         isUser: false,
         timestamp: new Date(),
         category: 'response',
@@ -138,7 +163,8 @@ const ChatInterface = () => {
         userMessage: userMessage.text,
         category: userMessage.category,
         sentiment: userMessage.sentiment,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        response: botResponse.text
       };
       
       const existingData = localStorage.getItem('chatAnalytics');
@@ -146,11 +172,13 @@ const ChatInterface = () => {
       analytics.push(chatData);
       localStorage.setItem('chatAnalytics', JSON.stringify(analytics));
       
+      console.log('Chat interaction saved to analytics');
+      
       toast({
-        title: "Message processed",
-        description: "Your request has been categorized and logged for analysis.",
+        title: "Response generated",
+        description: `Your ${userMessage.category} inquiry has been processed.`,
       });
-    }, 1500);
+    }, 1200);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -174,7 +202,9 @@ const ChatInterface = () => {
       'youth-programs': 'bg-blue-100 text-blue-800',
       'documents': 'bg-yellow-100 text-yellow-800',
       'complaints': 'bg-red-100 text-red-800',
-      'general': 'bg-gray-100 text-gray-800'
+      'general': 'bg-gray-100 text-gray-800',
+      'information': 'bg-teal-100 text-teal-800',
+      'response': 'bg-indigo-100 text-indigo-800'
     };
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -184,10 +214,10 @@ const ChatInterface = () => {
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-blue-600" />
-          Smart Assistant Chat
+          Ministry Youth Assistant
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Ask questions about cultural events, youth programs, documents, or general information
+          Ask about cultural events, youth programs, documents, or any ministry services
         </p>
       </CardHeader>
       
@@ -199,12 +229,12 @@ const ChatInterface = () => {
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] space-y-2`}>
+                <div className={`max-w-[85%] space-y-2`}>
                   <div
                     className={`p-4 rounded-lg ${
                       message.isUser
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
+                        : 'bg-gray-50 text-gray-900 border'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-2">
@@ -214,7 +244,7 @@ const ChatInterface = () => {
                         <Bot className="w-4 h-4" />
                       )}
                       <span className="text-sm font-medium">
-                        {message.isUser ? 'You' : 'Assistant'}
+                        {message.isUser ? 'You' : 'Ministry Assistant'}
                       </span>
                     </div>
                     <p className="text-sm leading-relaxed">{message.text}</p>
@@ -238,15 +268,15 @@ const ChatInterface = () => {
             
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 p-4 rounded-lg max-w-[80%]">
+                <div className="bg-gray-50 border p-4 rounded-lg max-w-[85%]">
                   <div className="flex items-center gap-2">
                     <Bot className="w-4 h-4" />
-                    <span className="text-sm font-medium">Assistant</span>
+                    <span className="text-sm font-medium">Ministry Assistant</span>
                   </div>
                   <div className="flex items-center gap-1 mt-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
                 </div>
               </div>
@@ -262,13 +292,21 @@ const ChatInterface = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message about cultural events, youth programs, or any questions..."
+              placeholder="Ask about cultural events, youth programs, documents, or any questions..."
               className="flex-1"
+              disabled={isTyping}
             />
-            <Button onClick={handleSendMessage} disabled={!inputValue.trim() || isTyping}>
-              Send
+            <Button 
+              onClick={handleSendMessage} 
+              disabled={!inputValue.trim() || isTyping}
+              className="min-w-[80px]"
+            >
+              {isTyping ? 'Sending...' : 'Send'}
             </Button>
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Press Enter to send • The assistant can help with ministry services and information
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,6 +118,8 @@ const ChatInterface = () => {
   };
 
   const handleSendMessage = () => {
+    console.log('Tentative d\'envoi de message:', inputValue);
+    
     if (!inputValue.trim()) {
       toast({
         title: "Message vide",
@@ -144,6 +145,8 @@ const ChatInterface = () => {
     setInputValue('');
     setIsTyping(true);
 
+    console.log('Message utilisateur ajouté, isTyping défini à true');
+
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -156,6 +159,8 @@ const ChatInterface = () => {
 
       setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
+      
+      console.log('Réponse du bot ajoutée, isTyping défini à false');
       
       const chatData = {
         userMessage: userMessage.text,
@@ -208,20 +213,22 @@ const ChatInterface = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto h-[600px] flex flex-col">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2">
+    <div className="w-full max-w-4xl mx-auto h-[600px] flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* Header fixe */}
+      <div className="flex-shrink-0 p-6 border-b border-gray-200 bg-white">
+        <div className="flex items-center gap-2 mb-2">
           <Bot className="w-6 h-6 text-blue-600" />
-          Assistant Jeunesse du Ministère
-        </CardTitle>
+          <h2 className="text-xl font-semibold">Assistant Jeunesse du Ministère</h2>
+        </div>
         <p className="text-sm text-gray-600">
           Posez des questions sur les événements culturels, programmes jeunesse, documents ou services du ministère
         </p>
-      </CardHeader>
+      </div>
       
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-6" ref={scrollAreaRef}>
-          <div className="space-y-4 pb-4">
+      {/* Zone de messages avec scroll */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full px-6 py-4" ref={scrollAreaRef}>
+          <div className="space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -281,33 +288,38 @@ const ChatInterface = () => {
             )}
           </div>
         </ScrollArea>
-        
-        <Separator />
-        
-        <div className="p-6">
-          <div className="flex gap-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Posez des questions sur les événements culturels, programmes jeunesse, documents ou toute question..."
-              className="flex-1"
-              disabled={isTyping}
-            />
-            <Button 
-              onClick={handleSendMessage} 
-              disabled={!inputValue.trim() || isTyping}
-              className="min-w-[80px]"
-            >
-              {isTyping ? 'Envoi...' : 'Envoyer'}
-            </Button>
-          </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Appuyez sur Entrée pour envoyer • L'assistant peut aider avec les services et informations du ministère
-          </p>
+      </div>
+      
+      {/* Séparateur */}
+      <Separator />
+      
+      {/* Barre de saisie fixe */}
+      <div className="flex-shrink-0 p-6 bg-white border-t border-gray-200">
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => {
+              console.log('Changement de valeur input:', e.target.value);
+              setInputValue(e.target.value);
+            }}
+            onKeyPress={handleKeyPress}
+            placeholder="Posez des questions sur les événements culturels, programmes jeunesse, documents ou toute question..."
+            className="flex-1"
+            disabled={isTyping}
+          />
+          <Button 
+            onClick={handleSendMessage} 
+            disabled={!inputValue.trim() || isTyping}
+            className="min-w-[80px]"
+          >
+            {isTyping ? 'Envoi...' : 'Envoyer'}
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+        <p className="text-xs text-gray-500 mt-2">
+          Appuyez sur Entrée pour envoyer • L'assistant peut aider avec les services et informations du ministère
+        </p>
+      </div>
+    </div>
   );
 };
 

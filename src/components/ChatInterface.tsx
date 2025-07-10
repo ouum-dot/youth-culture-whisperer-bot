@@ -42,30 +42,13 @@ const ChatInterface = () => {
               window.botpress.open();
             });
             
+            // Utiliser la nouvelle configuration partageable
             window.botpress.init({
-              "botId": "9c9b2511-4cc4-4d25-833b-94b742d4979b",
-              "configuration": {
-                "version": "v1",
-                "botName": "Chatbot MJCC",
-                "website": {},
-                "email": {},
-                "phone": {},
-                "termsOfService": {},
-                "privacyPolicy": {},
-                "color": "#5490f7",
-                "variant": "solid",
-                "headerVariant": "solid",
-                "themeMode": "light",
-                "fontFamily": "inter",
-                "radius": 4,
-                "feedbackEnabled": false,
-                "footer": "[⚡ by Botpress](https://botpress.com/?from=webchat)"
-              },
-              "clientId": "f30d11dd-6377-467f-9ac5-1e2722246153",
-              "selector": "#webchat"
+              configUrl: "https://files.bpcontent.cloud/2025/07/02/10/20250702105916-Z4EZPR2B.json",
+              selector: "#webchat"
             });
             
-            console.log('Chatbot Botpress initialisé avec succès');
+            console.log('Chatbot Botpress initialisé avec succès avec la nouvelle configuration');
           } else {
             // Réessayer si Botpress n'est pas encore disponible
             setTimeout(initBotpress, 100);

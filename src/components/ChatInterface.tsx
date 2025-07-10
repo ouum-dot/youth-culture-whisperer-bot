@@ -42,13 +42,14 @@ const ChatInterface = () => {
               window.botpress.open();
             });
             
-            // Utiliser la nouvelle configuration partageable
+            // Configuration avec botId et configUrl
             window.botpress.init({
+              botId: "9c9b2511-4cc4-4d25-833b-94b742d4979b",
               configUrl: "https://files.bpcontent.cloud/2025/07/02/10/20250702105916-Z4EZPR2B.json",
               selector: "#webchat"
             });
             
-            console.log('Chatbot Botpress initialisé avec succès avec la nouvelle configuration');
+            console.log('Chatbot Botpress initialisé avec succès avec botId et configUrl');
           } else {
             // Réessayer si Botpress n'est pas encore disponible
             setTimeout(initBotpress, 100);

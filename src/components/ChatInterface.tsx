@@ -29,37 +29,46 @@ const ChatInterface = () => {
       `;
       document.head.appendChild(style);
 
-      // Charger le script Botpress
-      const script = document.createElement('script');
-      script.src = 'https://cdn.botpress.cloud/webchat/v3.0/inject.js';
-      script.async = true;
+      // Charger le premier script Botpress
+      const script1 = document.createElement('script');
+      script1.src = 'https://cdn.botpress.cloud/webchat/v3.0/inject.js';
+      script1.async = true;
       
-      script.onload = () => {
-        // Attendre que Botpress soit prêt puis initialiser
-        const initBotpress = () => {
-          if (window.botpress) {
-            window.botpress.on("webchat:ready", () => {
-              window.botpress.open();
-            });
-            
-            // Configuration avec botId et configUrl
-            window.botpress.init({
-              botId: "9c9b2511-4cc4-4d25-833b-94b742d4979b",
-              configUrl: "https://files.bpcontent.cloud/2025/07/02/10/20250702105916-Z4EZPR2B.json",
-              selector: "#webchat"
-            });
-            
-            console.log('Chatbot Botpress initialisé avec succès avec botId et configUrl');
-          } else {
-            // Réessayer si Botpress n'est pas encore disponible
-            setTimeout(initBotpress, 100);
-          }
+      script1.onload = () => {
+        // Charger le deuxième script de configuration
+        const script2 = document.createElement('script');
+        script2.src = 'https://files.bpcontent.cloud/2025/07/02/10/20250702105916-MARQJ9EB.js';
+        script2.async = true;
+        
+        script2.onload = () => {
+          // Attendre que Botpress soit prêt puis initialiser
+          const initBotpress = () => {
+            if (window.botpress) {
+              window.botpress.on("webchat:ready", () => {
+                window.botpress.open();
+              });
+              
+              // Configuration avec clientId et botId
+              window.botpress.init({
+                clientId: "9c9b2511-4cc4-4d25-833b-94b742d4979b",
+                botId: "9c9b2511-4cc4-4d25-833b-94b742d4979b",
+                selector: "#webchat"
+              });
+              
+              console.log('Chatbot Botpress initialisé avec succès avec les nouveaux scripts');
+            } else {
+              // Réessayer si Botpress n'est pas encore disponible
+              setTimeout(initBotpress, 100);
+            }
+          };
+          
+          initBotpress();
         };
         
-        initBotpress();
+        document.head.appendChild(script2);
       };
       
-      document.head.appendChild(script);
+      document.head.appendChild(script1);
     };
 
     // Charger le chatbot
@@ -67,7 +76,7 @@ const ChatInterface = () => {
 
     // Nettoyage lors du démontage du composant
     return () => {
-      const scripts = document.querySelectorAll('script[src*="botpress"]');
+      const scripts = document.querySelectorAll('script[src*="botpress"], script[src*="bpcontent"]');
       scripts.forEach(script => {
         if (script.parentNode) {
           script.parentNode.removeChild(script);

@@ -5,38 +5,97 @@ import { Bot } from "lucide-react";
 
 const ChatInterface = () => {
   useEffect(() => {
-    // Fonction pour charger les scripts Botpress
-    const loadBotpressScripts = () => {
+    // Fonction pour charger et configurer Botpress
+    const loadBotpressChat = () => {
       // Vérifier si les scripts sont déjà chargés
       if (document.querySelector('script[src*="botpress"]')) {
         return;
       }
 
-      // Charger le premier script (inject.js)
-      const script1 = document.createElement('script');
-      script1.src = 'https://cdn.botpress.cloud/webchat/v3.0/inject.js';
-      script1.async = true;
-      document.head.appendChild(script1);
+      // Ajouter les styles CSS personnalisés
+      const style = document.createElement('style');
+      style.textContent = `
+        #webchat .bpWebchat {
+          position: unset;
+          width: 100%;
+          height: 100%;
+          max-height: 100%;
+          max-width: 100%;
+        }
 
-      // Charger le deuxième script (configuration spécifique)
-      const script2 = document.createElement('script');
-      script2.src = 'https://files.bpcontent.cloud/2025/07/02/10/20250702105916-MARQJ9EB.js';
-      script2.async = true;
-      document.head.appendChild(script2);
+        #webchat .bpFab {
+          display: none;
+        }
+      `;
+      document.head.appendChild(style);
 
-      console.log('Scripts Botpress chargés avec succès');
+      // Charger le script Botpress
+      const script = document.createElement('script');
+      script.src = 'https://cdn.botpress.cloud/webchat/v3.0/inject.js';
+      script.async = true;
+      
+      script.onload = () => {
+        // Attendre que Botpress soit prêt puis initialiser
+        const initBotpress = () => {
+          if (window.botpress) {
+            window.botpress.on("webchat:ready", () => {
+              window.botpress.open();
+            });
+            
+            window.botpress.init({
+              "botId": "9c9b2511-4cc4-4d25-833b-94b742d4979b",
+              "configuration": {
+                "version": "v1",
+                "botName": "Chatbot MJCC",
+                "website": {},
+                "email": {},
+                "phone": {},
+                "termsOfService": {},
+                "privacyPolicy": {},
+                "color": "#5490f7",
+                "variant": "solid",
+                "headerVariant": "solid",
+                "themeMode": "light",
+                "fontFamily": "inter",
+                "radius": 4,
+                "feedbackEnabled": false,
+                "footer": "[⚡ by Botpress](https://botpress.com/?from=webchat)"
+              },
+              "clientId": "f30d11dd-6377-467f-9ac5-1e2722246153",
+              "selector": "#webchat"
+            });
+            
+            console.log('Chatbot Botpress initialisé avec succès');
+          } else {
+            // Réessayer si Botpress n'est pas encore disponible
+            setTimeout(initBotpress, 100);
+          }
+        };
+        
+        initBotpress();
+      };
+      
+      document.head.appendChild(script);
     };
 
-    // Charger les scripts
-    loadBotpressScripts();
+    // Charger le chatbot
+    loadBotpressChat();
 
     // Nettoyage lors du démontage du composant
     return () => {
-      // Optionnel : supprimer les scripts si nécessaire
       const scripts = document.querySelectorAll('script[src*="botpress"]');
       scripts.forEach(script => {
         if (script.parentNode) {
           script.parentNode.removeChild(script);
+        }
+      });
+      
+      const styles = document.querySelectorAll('style');
+      styles.forEach(style => {
+        if (style.textContent && style.textContent.includes('#webchat .bpWebchat')) {
+          if (style.parentNode) {
+            style.parentNode.removeChild(style);
+          }
         }
       });
     };
@@ -48,31 +107,20 @@ const ChatInterface = () => {
       <div className="flex-shrink-0 p-6 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-2 mb-2">
           <Bot className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl font-semibold">Assistant Jeunesse du Ministère</h2>
+          <h2 className="text-xl font-semibold">Chatbot MJCC</h2>
         </div>
         <p className="text-sm text-gray-600">
-          Chatbot intelligent propulsé par Botpress - Posez vos questions sur les événements culturels, programmes jeunesse et services du ministère
+          Assistant intelligent du Ministère de la Jeunesse, Communication et Culture - Posez vos questions sur nos services et programmes
         </p>
       </div>
       
-      {/* Zone principale pour le chatbot Botpress */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center space-y-4">
-          <div className="animate-pulse">
-            <Bot className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-700">
-            Initialisation du chatbot...
-          </h3>
-          <p className="text-sm text-gray-500">
-            Le chatbot Botpress se charge automatiquement et apparaîtra dans le coin de votre écran.
-          </p>
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-700">
-              💡 <strong>Astuce:</strong> Cherchez l'icône de chat dans le coin inférieur droit de votre écran pour commencer à discuter avec notre assistant intelligent.
-            </p>
-          </div>
-        </div>
+      {/* Zone du chatbot Botpress */}
+      <div className="flex-1 p-4">
+        <div 
+          id="webchat" 
+          className="w-full h-full rounded-lg border border-gray-200"
+          style={{ minHeight: '500px' }}
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 interface ChatData {
@@ -11,8 +12,19 @@ interface ChatData {
   timestamp: string;
 }
 
+interface UserRequest {
+  id: string;
+  nom: string;
+  email: string;
+  telephone: string;
+  natureRequete: 'plainte' | 'service';
+  description: string;
+  timestamp: string;
+}
+
 const AnalyticsDashboard = () => {
   const [chatData, setChatData] = useState<ChatData[]>([]);
+  const [userRequests, setUserRequests] = useState<UserRequest[]>([]);
   const [insights, setInsights] = useState({
     totalInteractions: 0,
     mostPopularCategory: '',
@@ -27,6 +39,12 @@ const AnalyticsDashboard = () => {
       const parsedData = JSON.parse(data);
       setChatData(parsedData);
       generateInsights(parsedData);
+    }
+
+    const requests = localStorage.getItem('userRequests');
+    if (requests) {
+      const parsedRequests = JSON.parse(requests);
+      setUserRequests(parsedRequests);
     }
   }, []);
 
@@ -74,15 +92,10 @@ const AnalyticsDashboard = () => {
     }, {} as Record<string, number>);
 
     const categoryLabels = {
-      'evenements-culturels': 'événements culturels',
-      'programmes-jeunesse': 'programmes jeunesse',
-      'documents': 'documents',
-      'plaintes': 'plaintes',
-      'informations': 'informations',
+      'information': 'information',
       'service': 'service',
-      'actualites': 'actualités',
-      'questions': 'questions',
-      'general': 'général'
+      'plainte': 'plainte',
+      'actualite': 'actualité'
     };
 
     return Object.entries(categoryCount).map(([category, count]) => ({
@@ -140,10 +153,24 @@ const AnalyticsDashboard = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getRequestTypeColor = (type: string) => {
+    return type === 'plainte' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800';
+  };
+
   return (
     <div className="space-y-6">
       {/* Métriques Clés */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Total des Interactions</CardTitle>
@@ -189,14 +216,25 @@ const AnalyticsDashboard = () => {
             <p className="text-xs text-gray-500 mt-1">Activité la plus élevée</p>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">Demandes Détaillées</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{userRequests.length}</div>
+            <p className="text-xs text-gray-500 mt-1">Plaintes et services</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Graphiques */}
       <Tabs defaultValue="categories" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="categories">Catégories de Demandes</TabsTrigger>
           <TabsTrigger value="sentiment">Analyse des Sentiments</TabsTrigger>
           <TabsTrigger value="timeline">Chronologie</TabsTrigger>
+          <TabsTrigger value="requests">Demandes Détaillées</TabsTrigger>
         </TabsList>
 
         <TabsContent value="categories" className="space-y-4">
@@ -204,7 +242,7 @@ const AnalyticsDashboard = () => {
             <CardHeader>
               <CardTitle>Catégories de Demandes Citoyennes</CardTitle>
               <p className="text-sm text-gray-600">
-                Distribution des demandes citoyennes par catégorie : questions, plaintes, services et actualités
+                Distribution des demandes citoyennes par catégorie : information, service, plainte et actualité
               </p>
             </CardHeader>
             <CardContent>
@@ -276,6 +314,59 @@ const AnalyticsDashboard = () => {
                     <Line type="monotone" dataKey="interactions" stroke="#3B82F6" strokeWidth={2} />
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Demandes Détaillées des Citoyens</CardTitle>
+              <p className="text-sm text-gray-600">
+                Informations complètes des citoyens ayant déposé des plaintes ou demandé des services
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nom</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Téléphone</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Date/Heure</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {userRequests.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                          Aucune demande détaillée disponible
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      userRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">{request.nom}</TableCell>
+                          <TableCell>{request.email}</TableCell>
+                          <TableCell>{request.telephone}</TableCell>
+                          <TableCell>
+                            <Badge className={getRequestTypeColor(request.natureRequete)}>
+                              {request.natureRequete}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate" title={request.description}>
+                            {request.description}
+                          </TableCell>
+                          <TableCell>{formatDate(request.timestamp)}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </CardContent>
           </Card>

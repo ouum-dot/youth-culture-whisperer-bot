@@ -110,16 +110,31 @@ const AnalyticsDashboard = () => {
   };
 
   const getTimelineData = () => {
-    const dailyCount = chatData.reduce((acc, item) => {
-      const date = new Date(item.timestamp).toDateString();
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return Object.entries(dailyCount).map(([date, count]) => ({
-      date: new Date(date).toLocaleDateString('fr-FR'),
-      interactions: count
-    }));
+    const today = new Date();
+    const timelineData = [];
+    
+    // Générer les données pour les 7 derniers jours
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const dateString = date.toDateString();
+      
+      // Compter les interactions pour cette date
+      const interactionsForDate = chatData.filter(item => {
+        const itemDate = new Date(item.timestamp).toDateString();
+        return itemDate === dateString;
+      }).length;
+      
+      timelineData.push({
+        date: date.toLocaleDateString('fr-FR', { 
+          month: 'short', 
+          day: 'numeric' 
+        }),
+        interactions: interactionsForDate
+      });
+    }
+    
+    return timelineData;
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];

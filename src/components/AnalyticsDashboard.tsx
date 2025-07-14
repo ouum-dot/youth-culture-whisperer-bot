@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,20 +64,55 @@ const AnalyticsDashboard = () => {
     if (data) {
       try {
         parsedData = JSON.parse(data);
+        console.log('Données analytics chargées:', parsedData);
       } catch (error) {
         console.log('Erreur lors du parsing des données, utilisation des données de démonstration');
       }
     }
     
-    // Si pas de données ou données vides, utiliser les données de démonstration
+    // Si pas de données réelles, utiliser les données de démonstration
     if (!parsedData || parsedData.length === 0) {
+      console.log('Aucune donnée réelle trouvée, utilisation des données de démonstration');
       parsedData = generateDemoData();
-      // Sauvegarder les données de démonstration dans le localStorage
-      localStorage.setItem('chatAnalytics', JSON.stringify(parsedData));
+      // Ne pas sauvegarder les données de démo pour ne pas écraser les vraies données
+    } else {
+      console.log(`${parsedData.length} interactions réelles trouvées`);
     }
     
     setChatData(parsedData);
     generateInsights(parsedData);
+
+    // Écouter les changements dans localStorage pour les mises à jour en temps réel
+    const handleStorageChange = () => {
+      const updatedData = localStorage.getItem('chatAnalytics');
+      if (updatedData) {
+        try {
+          const newParsedData = JSON.parse(updatedData);
+          console.log('Données mises à jour détectées:', newParsedData);
+          setChatData(newParsedData);
+          generateInsights(newParsedData);
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour des données:', error);
+        }
+      }
+    };
+
+    // Écouter les changements du localStorage
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Vérifier périodiquement les nouvelles données (pour les changements dans la même fenêtre)
+    const interval = setInterval(() => {
+      const currentData = localStorage.getItem('chatAnalytics');
+      if (currentData && currentData !== data) {
+        handleStorageChange();
+        data = currentData;
+      }
+    }, 2000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   const generateInsights = (data: ChatData[]) => {
@@ -170,11 +204,13 @@ const AnalyticsDashboard = () => {
       date.setDate(today.getDate() - i);
       const dateString = date.toDateString();
       
-      // Compter les interactions pour cette date
+      // Compter les interactions réelles pour cette date
       const interactionsForDate = chatData.filter(item => {
         const itemDate = new Date(item.timestamp).toDateString();
         return itemDate === dateString;
       }).length;
+      
+      console.log(`Date: ${dateString}, Interactions: ${interactionsForDate}`);
       
       timelineData.push({
         date: date.toLocaleDateString('fr-FR', { 
@@ -185,6 +221,7 @@ const AnalyticsDashboard = () => {
       });
     }
     
+    console.log('Données de chronologie:', timelineData);
     return timelineData;
   };
 
@@ -208,6 +245,20 @@ const AnalyticsDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug info */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardContent className="p-4">
+          <p className="text-sm text-blue-800">
+            <strong>Debug:</strong> {chatData.length} interactions trouvées dans les données
+            {chatData.length > 0 && (
+              <span className="ml-2">
+                (Dernière: {new Date(chatData[chatData.length - 1]?.timestamp).toLocaleString('fr-FR')})
+              </span>
+            )}
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Métriques Clés */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>

@@ -4,6 +4,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot } from "lucide-react";
 
 const ChatInterface = () => {
+  // Fonction pour sauvegarder les interactions dans localStorage
+  const saveInteraction = (userMessage: string) => {
+    const interaction = {
+      userMessage: userMessage,
+      category: 'general', // Pourrait être analysé plus tard
+      sentiment: 'neutral', // Pourrait être analysé plus tard
+      timestamp: new Date().toISOString()
+    };
+
+    const existingData = localStorage.getItem('chatAnalytics');
+    let analytics = [];
+    
+    if (existingData) {
+      try {
+        analytics = JSON.parse(existingData);
+      } catch (error) {
+        console.error('Erreur lors du parsing des données existantes:', error);
+        analytics = [];
+      }
+    }
+    
+    analytics.push(interaction);
+    localStorage.setItem('chatAnalytics', JSON.stringify(analytics));
+    console.log('Interaction sauvegardée:', interaction);
+  };
+
   useEffect(() => {
     // Fonction pour charger et configurer Botpress
     const loadBotpressChat = () => {
@@ -44,6 +70,14 @@ const ChatInterface = () => {
           // Attendre que Botpress soit prêt puis initialiser
           const initBotpress = () => {
             if (window.botpress) {
+              // Écouter les événements de message pour capturer les interactions
+              window.botpress.on("webchat:sent", (event) => {
+                console.log('Message envoyé par l\'utilisateur:', event);
+                if (event && event.text) {
+                  saveInteraction(event.text);
+                }
+              });
+
               window.botpress.on("webchat:ready", () => {
                 window.botpress.open();
               });
@@ -55,7 +89,7 @@ const ChatInterface = () => {
                 selector: "#webchat"
               });
               
-              console.log('Chatbot Botpress initialisé avec succès avec les nouveaux scripts');
+              console.log('Chatbot Botpress initialisé avec succès avec capture des interactions');
             } else {
               // Réessayer si Botpress n'est pas encore disponible
               setTimeout(initBotpress, 100);

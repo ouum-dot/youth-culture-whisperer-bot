@@ -1,4 +1,3 @@
-
 import { ChatData, Insights, ChartData, TimelineData } from '@/types/analytics';
 
 export const generateDemoData = (): ChatData[] => {
@@ -128,20 +127,32 @@ export const getTimelineData = (chatData: ChatData[]): TimelineData[] => {
     return [];
   }
 
-  // Obtenir toutes les dates uniques des données réelles
+  console.log('Données brutes pour timeline:', chatData.map(item => ({
+    timestamp: item.timestamp,
+    date: new Date(item.timestamp).toLocaleDateString('fr-FR')
+  })));
+
+  // Grouper les interactions par date (utiliser toDateString pour éviter les problèmes de timezone)
   const datesMap = new Map<string, number>();
   
   chatData.forEach(item => {
     const date = new Date(item.timestamp);
-    const dateString = date.toDateString();
-    const count = datesMap.get(dateString) || 0;
-    datesMap.set(dateString, count + 1);
+    // Normaliser la date au début de la journée en UTC pour éviter les problèmes de timezone
+    const normalizedDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dateKey = normalizedDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    
+    console.log(`Processing interaction: ${item.timestamp} -> ${dateKey}`);
+    
+    const count = datesMap.get(dateKey) || 0;
+    datesMap.set(dateKey, count + 1);
   });
+
+  console.log('Dates groupées:', Array.from(datesMap.entries()));
 
   // Convertir en format pour le graphique, trié par date
   const timelineData = Array.from(datesMap.entries())
-    .map(([dateString, count]) => {
-      const date = new Date(dateString);
+    .map(([dateKey, count]) => {
+      const date = new Date(dateKey + 'T12:00:00.000Z'); // Ajouter une heure fixe pour éviter les problèmes de timezone
       return {
         date: date.toLocaleDateString('fr-FR', { 
           month: 'short', 
@@ -153,7 +164,7 @@ export const getTimelineData = (chatData: ChatData[]): TimelineData[] => {
     })
     .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
   
-  console.log('Données de chronologie (réelles):', timelineData);
+  console.log('Données de chronologie finales:', timelineData);
   return timelineData;
 };
 

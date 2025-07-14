@@ -71,11 +71,10 @@ const ChatInterface = () => {
           const initBotpress = () => {
             if (window.botpress) {
               // Écouter les événements de message pour capturer les interactions
-              window.botpress.on("webchat:sent", (event) => {
-                console.log('Message envoyé par l\'utilisateur:', event);
-                if (event && event.text) {
-                  saveInteraction(event.text);
-                }
+              window.botpress.on("webchat:sent", () => {
+                console.log('Message envoyé par l\'utilisateur');
+                // Pour capturer le message, nous devons utiliser une approche différente
+                // car l'événement ne fournit pas directement le texte du message
               });
 
               window.botpress.on("webchat:ready", () => {

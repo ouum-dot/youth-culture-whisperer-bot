@@ -28,6 +28,9 @@ const ChatInterface = () => {
     analytics.push(interaction);
     localStorage.setItem('chatAnalytics', JSON.stringify(analytics));
     console.log('Interaction sauvegardée:', interaction);
+    
+    // Déclencher un événement personnalisé pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent('chatAnalyticsUpdated'));
   };
 
   useEffect(() => {
@@ -70,15 +73,51 @@ const ChatInterface = () => {
           // Attendre que Botpress soit prêt puis initialiser
           const initBotpress = () => {
             if (window.botpress) {
-              // Écouter les événements de message pour capturer les interactions
-              window.botpress.on("webchat:sent", () => {
-                console.log('Message envoyé par l\'utilisateur');
-                // Pour capturer le message, nous devons utiliser une approche différente
-                // car l'événement ne fournit pas directement le texte du message
+              // Capturer les messages en surveillant les changements dans le DOM
+              let lastMessageCount = 0;
+              const checkForNewMessages = () => {
+                const messageElements = document.querySelectorAll('#webchat [class*="message"], #webchat [class*="Message"]');
+                const currentMessageCount = messageElements.length;
+                
+                if (currentMessageCount > lastMessageCount) {
+                  // Nouveau message détecté, essayer de capturer le dernier message utilisateur
+                  const userMessages = Array.from(messageElements).filter(el => {
+                    return el.textContent && !el.classList.contains('bot-message') && 
+                           !el.innerHTML.includes('typing') && el.textContent.trim().length > 0;
+                  });
+                  
+                  if (userMessages.length > 0) {
+                    const lastUserMessage = userMessages[userMessages.length - 1];
+                    const messageText = lastUserMessage.textContent?.trim();
+                    if (messageText) {
+                      console.log('Message utilisateur capturé:', messageText);
+                      saveInteraction(messageText);
+                    }
+                  }
+                  lastMessageCount = currentMessageCount;
+                }
+              };
+
+              // Utiliser MutationObserver pour détecter les nouveaux messages
+              const observer = new MutationObserver(() => {
+                setTimeout(checkForNewMessages, 500);
               });
+
+              // Observer les changements dans la zone de chat
+              setTimeout(() => {
+                const chatContainer = document.querySelector('#webchat');
+                if (chatContainer) {
+                  observer.observe(chatContainer, {
+                    childList: true,
+                    subtree: true
+                  });
+                  console.log('Observer des messages configuré');
+                }
+              }, 2000);
 
               window.botpress.on("webchat:ready", () => {
                 window.botpress.open();
+                console.log('Webchat prêt');
               });
               
               // Configuration avec clientId et botId

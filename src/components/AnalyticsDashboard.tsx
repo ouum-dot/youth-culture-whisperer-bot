@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -195,33 +196,36 @@ const AnalyticsDashboard = () => {
   };
 
   const getTimelineData = () => {
-    const today = new Date();
-    const timelineData = [];
-    
-    // Générer les données pour les 7 derniers jours
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dateString = date.toDateString();
-      
-      // Compter les interactions réelles pour cette date
-      const interactionsForDate = chatData.filter(item => {
-        const itemDate = new Date(item.timestamp).toDateString();
-        return itemDate === dateString;
-      }).length;
-      
-      console.log(`Date: ${dateString}, Interactions: ${interactionsForDate}`);
-      
-      timelineData.push({
-        date: date.toLocaleDateString('fr-FR', { 
-          month: 'short', 
-          day: 'numeric' 
-        }),
-        interactions: interactionsForDate
-      });
+    if (chatData.length === 0) {
+      return [];
     }
+
+    // Obtenir toutes les dates uniques des données réelles
+    const datesMap = new Map<string, number>();
     
-    console.log('Données de chronologie:', timelineData);
+    chatData.forEach(item => {
+      const date = new Date(item.timestamp);
+      const dateString = date.toDateString();
+      const count = datesMap.get(dateString) || 0;
+      datesMap.set(dateString, count + 1);
+    });
+
+    // Convertir en format pour le graphique, trié par date
+    const timelineData = Array.from(datesMap.entries())
+      .map(([dateString, count]) => {
+        const date = new Date(dateString);
+        return {
+          date: date.toLocaleDateString('fr-FR', { 
+            month: 'short', 
+            day: 'numeric' 
+          }),
+          interactions: count,
+          fullDate: date.toISOString()
+        };
+      })
+      .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
+    
+    console.log('Données de chronologie (réelles):', timelineData);
     return timelineData;
   };
 
@@ -255,6 +259,9 @@ const AnalyticsDashboard = () => {
                 (Dernière: {new Date(chatData[chatData.length - 1]?.timestamp).toLocaleString('fr-FR')})
               </span>
             )}
+          </p>
+          <p className="text-xs text-blue-600 mt-1">
+            Timeline affiche {getTimelineData().length} jours avec des interactions
           </p>
         </CardContent>
       </Card>
@@ -379,7 +386,7 @@ const AnalyticsDashboard = () => {
             <CardHeader>
               <CardTitle>Chronologie des Interactions</CardTitle>
               <p className="text-sm text-gray-600">
-                Modèles d'interaction citoyenne quotidienne
+                Toutes les interactions citoyennes enregistrées ({chatData.length} total)
               </p>
             </CardHeader>
             <CardContent>

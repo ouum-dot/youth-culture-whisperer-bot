@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,13 +22,63 @@ const AnalyticsDashboard = () => {
     trendingTopics: [] as string[]
   });
 
-  useEffect(() => {
-    const data = localStorage.getItem('chatAnalytics');
-    if (data) {
-      const parsedData = JSON.parse(data);
-      setChatData(parsedData);
-      generateInsights(parsedData);
+  // Fonction pour générer des données de démonstration
+  const generateDemoData = (): ChatData[] => {
+    const categories = ['evenements-culturels', 'programmes-jeunesse', 'documents', 'plaintes', 'informations', 'service', 'actualites', 'questions'];
+    const sentiments: ('positive' | 'neutral' | 'negative')[] = ['positive', 'neutral', 'negative'];
+    const demoData: ChatData[] = [];
+    
+    // Générer des données pour les 7 derniers jours
+    for (let day = 6; day >= 0; day--) {
+      const date = new Date();
+      date.setDate(date.getDate() - day);
+      
+      // Générer 2-8 interactions par jour
+      const interactionsPerDay = Math.floor(Math.random() * 7) + 2;
+      
+      for (let i = 0; i < interactionsPerDay; i++) {
+        const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+        const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+        
+        // Varier les heures dans la journée
+        const hour = Math.floor(Math.random() * 16) + 8; // Entre 8h et 23h
+        const minute = Math.floor(Math.random() * 60);
+        
+        date.setHours(hour, minute, 0, 0);
+        
+        demoData.push({
+          userMessage: `Message de démonstration ${i + 1}`,
+          category: randomCategory,
+          sentiment: randomSentiment,
+          timestamp: date.toISOString()
+        });
+      }
     }
+    
+    return demoData;
+  };
+
+  useEffect(() => {
+    let data = localStorage.getItem('chatAnalytics');
+    let parsedData: ChatData[] = [];
+    
+    if (data) {
+      try {
+        parsedData = JSON.parse(data);
+      } catch (error) {
+        console.log('Erreur lors du parsing des données, utilisation des données de démonstration');
+      }
+    }
+    
+    // Si pas de données ou données vides, utiliser les données de démonstration
+    if (!parsedData || parsedData.length === 0) {
+      parsedData = generateDemoData();
+      // Sauvegarder les données de démonstration dans le localStorage
+      localStorage.setItem('chatAnalytics', JSON.stringify(parsedData));
+    }
+    
+    setChatData(parsedData);
+    generateInsights(parsedData);
   }, []);
 
   const generateInsights = (data: ChatData[]) => {

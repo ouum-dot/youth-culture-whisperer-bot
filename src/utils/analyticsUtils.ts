@@ -1,3 +1,4 @@
+
 import { ChatData, Insights, ChartData, TimelineData } from '@/types/analytics';
 
 export const generateDemoData = (): ChatData[] => {
@@ -123,23 +124,18 @@ export const getSentimentData = (chatData: ChatData[]): ChartData[] => {
 };
 
 export const getTimelineData = (chatData: ChatData[]): TimelineData[] => {
-  if (chatData.length === 0) {
-    return [];
-  }
-
   console.log('Données brutes pour timeline:', chatData.map(item => ({
     timestamp: item.timestamp,
     date: new Date(item.timestamp).toLocaleDateString('fr-FR')
   })));
 
-  // Grouper les interactions par date (utiliser toDateString pour éviter les problèmes de timezone)
+  // Grouper les interactions par date
   const datesMap = new Map<string, number>();
   
   chatData.forEach(item => {
     const date = new Date(item.timestamp);
-    // Normaliser la date au début de la journée en UTC pour éviter les problèmes de timezone
     const normalizedDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dateKey = normalizedDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const dateKey = normalizedDate.toISOString().split('T')[0];
     
     console.log(`Processing interaction: ${item.timestamp} -> ${dateKey}`);
     
@@ -149,20 +145,25 @@ export const getTimelineData = (chatData: ChatData[]): TimelineData[] => {
 
   console.log('Dates groupées:', Array.from(datesMap.entries()));
 
-  // Convertir en format pour le graphique, trié par date
-  const timelineData = Array.from(datesMap.entries())
-    .map(([dateKey, count]) => {
-      const date = new Date(dateKey + 'T12:00:00.000Z'); // Ajouter une heure fixe pour éviter les problèmes de timezone
-      return {
-        date: date.toLocaleDateString('fr-FR', { 
-          month: 'short', 
-          day: 'numeric' 
-        }),
-        interactions: count,
-        fullDate: date.toISOString()
-      };
-    })
-    .sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
+  // Créer une chronologie complète depuis le 1er juillet jusqu'à aujourd'hui
+  const startDate = new Date('2025-07-01');
+  const endDate = new Date();
+  const timelineData: TimelineData[] = [];
+
+  // Générer tous les jours depuis le 1er juillet
+  for (let currentDate = new Date(startDate); currentDate <= endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+    const dateKey = currentDate.toISOString().split('T')[0];
+    const interactions = datesMap.get(dateKey) || 0;
+    
+    timelineData.push({
+      date: currentDate.toLocaleDateString('fr-FR', { 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+      interactions,
+      fullDate: currentDate.toISOString()
+    });
+  }
   
   console.log('Données de chronologie finales:', timelineData);
   return timelineData;

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChatData, Insights } from '@/types/analytics';
 import { generateDemoData, generateInsights, getCategoryData, getSentimentData, getTimelineData } from '@/utils/analyticsUtils';
+import { useChatInteractions } from '@/hooks/useChatInteractions';
+import { useAuth } from '@/contexts/AuthContext';
 import MetricsCards from './analytics/MetricsCards';
 import CategoryChart from './analytics/CategoryChart';
 import SentimentChart from './analytics/SentimentChart';
@@ -20,71 +22,53 @@ const AnalyticsDashboard = () => {
     trendingTopics: []
   });
 
+  const { interactions, loading } = useChatInteractions();
+  const { user } = useAuth();
+
   useEffect(() => {
-    let data = localStorage.getItem('chatAnalytics');
-    let parsedData: ChatData[] = [];
-    
-    if (data) {
-      try {
-        parsedData = JSON.parse(data);
-        console.log('Données analytics chargées:', parsedData);
-      } catch (error) {
-        console.log('Erreur lors du parsing des données, utilisation des données de démonstration');
-      }
-    }
-    
-    // Si pas de données réelles, utiliser les données de démonstration
-    if (!parsedData || parsedData.length === 0) {
+    if (user && interactions.length > 0) {
+      console.log('Utilisation des données réelles depuis Supabase:', interactions);
+      setChatData(interactions);
+      setInsights(generateInsights(interactions));
+    } else if (user && interactions.length === 0 && !loading) {
       console.log('Aucune donnée réelle trouvée, utilisation des données de démonstration');
-      parsedData = generateDemoData();
-      // Ne pas sauvegarder les données de démo pour ne pas écraser les vraies données
-    } else {
-      console.log(`${parsedData.length} interactions réelles trouvées`);
+      const demoData = generateDemoData();
+      setChatData(demoData);
+      setInsights(generateInsights(demoData));
+    } else if (!user) {
+      console.log('Utilisateur non connecté, utilisation des données de démonstration');
+      const demoData = generateDemoData();
+      setChatData(demoData);
+      setInsights(generateInsights(demoData));
     }
-    
-    setChatData(parsedData);
-    setInsights(generateInsights(parsedData));
-
-    // Écouter les changements dans localStorage pour les mises à jour en temps réel
-    const handleStorageChange = () => {
-      const updatedData = localStorage.getItem('chatAnalytics');
-      if (updatedData) {
-        try {
-          const newParsedData = JSON.parse(updatedData);
-          console.log('Données mises à jour détectées:', newParsedData);
-          setChatData(newParsedData);
-          setInsights(generateInsights(newParsedData));
-        } catch (error) {
-          console.error('Erreur lors de la mise à jour des données:', error);
-        }
-      }
-    };
-
-    // Écouter les changements du localStorage
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Vérifier périodiquement les nouvelles données (pour les changements dans la même fenêtre)
-    const interval = setInterval(() => {
-      const currentData = localStorage.getItem('chatAnalytics');
-      if (currentData && currentData !== data) {
-        handleStorageChange();
-        data = currentData;
-      }
-    }, 2000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
+  }, [user, interactions, loading]);
 
   const categoryData = getCategoryData(chatData);
   const sentimentData = getSentimentData(chatData);
   const timelineData = getTimelineData(chatData);
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Chargement des données analytiques...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <DebugInfo chatData={chatData} timelineDataLength={timelineData.length} />
+
+      {!user && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-blue-800 text-sm">
+            💡 <strong>Mode démonstration :</strong> Connectez-vous pour voir vos vraies données d'analytics basées sur vos interactions avec le chatbot.
+          </p>
+        </div>
+      )}
 
       <MetricsCards insights={insights} />
 

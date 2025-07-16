@@ -2,35 +2,18 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot } from "lucide-react";
+import { useChatInteractions } from '@/hooks/useChatInteractions';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ChatInterface = () => {
-  // Fonction pour sauvegarder les interactions dans localStorage
-  const saveInteraction = (userMessage: string) => {
-    const interaction = {
-      userMessage: userMessage,
-      category: 'general', // Pourrait être analysé plus tard
-      sentiment: 'neutral', // Pourrait être analysé plus tard
-      timestamp: new Date().toISOString()
-    };
+  const { saveChatInteraction } = useChatInteractions();
+  const { user } = useAuth();
 
-    const existingData = localStorage.getItem('chatAnalytics');
-    let analytics = [];
-    
-    if (existingData) {
-      try {
-        analytics = JSON.parse(existingData);
-      } catch (error) {
-        console.error('Erreur lors du parsing des données existantes:', error);
-        analytics = [];
-      }
+  // Fonction pour sauvegarder les interactions dans Supabase
+  const saveInteraction = (userMessage: string) => {
+    if (user) {
+      saveChatInteraction(userMessage, 'general', 'neutral');
     }
-    
-    analytics.push(interaction);
-    localStorage.setItem('chatAnalytics', JSON.stringify(analytics));
-    console.log('Interaction sauvegardée:', interaction);
-    
-    // Déclencher un événement personnalisé pour notifier les autres composants
-    window.dispatchEvent(new CustomEvent('chatAnalyticsUpdated'));
   };
 
   useEffect(() => {
@@ -143,8 +126,10 @@ const ChatInterface = () => {
       document.head.appendChild(script1);
     };
 
-    // Charger le chatbot
-    loadBotpressChat();
+    // Charger le chatbot seulement si l'utilisateur est connecté
+    if (user) {
+      loadBotpressChat();
+    }
 
     // Nettoyage lors du démontage du composant
     return () => {
@@ -164,7 +149,17 @@ const ChatInterface = () => {
         }
       });
     };
-  }, []);
+  }, [user, saveInteraction]);
+
+  if (!user) {
+    return (
+      <div className="w-full max-w-4xl mx-auto h-[600px] flex flex-col bg-white rounded-lg shadow-lg">
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-gray-600">Veuillez vous connecter pour utiliser le chatbot.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto h-[600px] flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">

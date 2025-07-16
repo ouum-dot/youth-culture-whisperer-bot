@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analytics_summary: {
+        Row: {
+          categories: Json | null
+          created_at: string
+          date: string
+          id: string
+          peak_hour: number | null
+          sentiments: Json | null
+          total_interactions: number | null
+          user_id: string | null
+        }
+        Insert: {
+          categories?: Json | null
+          created_at?: string
+          date: string
+          id?: string
+          peak_hour?: number | null
+          sentiments?: Json | null
+          total_interactions?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          categories?: Json | null
+          created_at?: string
+          date?: string
+          id?: string
+          peak_hour?: number | null
+          sentiments?: Json | null
+          total_interactions?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      chat_interactions: {
+        Row: {
+          bot_response: string | null
+          category: string
+          created_at: string
+          id: string
+          sentiment: string
+          session_id: string | null
+          timestamp: string
+          user_id: string | null
+          user_message: string
+        }
+        Insert: {
+          bot_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          sentiment?: string
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+          user_message: string
+        }
+        Update: {
+          bot_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          sentiment?: string
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+          user_message?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

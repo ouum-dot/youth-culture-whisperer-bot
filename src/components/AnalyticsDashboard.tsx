@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChatData, Insights } from '@/types/analytics';
 import { generateDemoData, generateInsights, getCategoryData, getSentimentData, getTimelineData } from '@/utils/analyticsUtils';
 import { useChatInteractions } from '@/hooks/useChatInteractions';
+import { useBotpressData } from '@/hooks/useBotpressData';
 import { useAuth } from '@/contexts/AuthContext';
 import MetricsCards from './analytics/MetricsCards';
 import CategoryChart from './analytics/CategoryChart';
@@ -23,36 +24,44 @@ const AnalyticsDashboard = () => {
   });
 
   const { interactions, loading } = useChatInteractions();
+  const { botpressData, loading: botpressLoading, error: botpressError } = useBotpressData();
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user && interactions.length > 0) {
+    // Prioritize Botpress data if available
+    if (botpressData.length > 0) {
+      console.log('Utilisation des données Botpress:', botpressData);
+      setChatData(botpressData);
+      setInsights(generateInsights(botpressData));
+    } else if (user && interactions.length > 0) {
       console.log('Utilisation des données réelles depuis Supabase:', interactions);
       setChatData(interactions);
       setInsights(generateInsights(interactions));
-    } else if (user && interactions.length === 0 && !loading) {
+    } else if (user && interactions.length === 0 && !loading && !botpressLoading) {
       console.log('Aucune donnée réelle trouvée, utilisation des données de démonstration');
       const demoData = generateDemoData();
       setChatData(demoData);
       setInsights(generateInsights(demoData));
-    } else if (!user) {
+    } else if (!user && !botpressLoading) {
       console.log('Utilisateur non connecté, utilisation des données de démonstration');
       const demoData = generateDemoData();
       setChatData(demoData);
       setInsights(generateInsights(demoData));
     }
-  }, [user, interactions, loading]);
+  }, [user, interactions, loading, botpressData, botpressLoading]);
 
   const categoryData = getCategoryData(chatData);
   const sentimentData = getSentimentData(chatData);
   const timelineData = getTimelineData(chatData);
 
-  if (loading) {
+  if (loading || botpressLoading) {
     return (
       <div className="space-y-6">
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Chargement des données analytiques...</p>
+          <p className="mt-4 text-gray-600">
+            {botpressLoading ? 'Chargement des données Botpress...' : 'Chargement des données analytiques...'}
+          </p>
         </div>
       </div>
     );
@@ -62,7 +71,23 @@ const AnalyticsDashboard = () => {
     <div className="space-y-6">
       <DebugInfo chatData={chatData} timelineDataLength={timelineData.length} />
 
-      {!user && (
+      {botpressError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <p className="text-red-800 text-sm">
+            ⚠️ <strong>Erreur Botpress :</strong> {botpressError}. Utilisation des données alternatives.
+          </p>
+        </div>
+      )}
+
+      {botpressData.length > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <p className="text-green-800 text-sm">
+            ✅ <strong>Données Botpress connectées :</strong> Affichage des vraies données depuis votre chatbot Botpress.
+          </p>
+        </div>
+      )}
+
+      {!user && botpressData.length === 0 && !botpressError && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <p className="text-blue-800 text-sm">
             💡 <strong>Mode démonstration :</strong> Connectez-vous pour voir vos vraies données d'analytics basées sur vos interactions avec le chatbot.

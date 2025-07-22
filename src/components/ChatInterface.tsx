@@ -43,13 +43,13 @@ const ChatInterface = () => {
 
       // Charger le premier script Botpress
       const script1 = document.createElement('script');
-      script1.src = 'https://cdn.botpress.cloud/webchat/v3.0/inject.js';
+      script1.src = 'https://cdn.botpress.cloud/webchat/v3.1/inject.js';
       script1.async = true;
       
       script1.onload = () => {
         // Charger le deuxième script de configuration
         const script2 = document.createElement('script');
-        script2.src = 'https://files.bpcontent.cloud/2025/07/02/10/20250702105916-MARQJ9EB.js';
+        script2.src = 'https://files.bpcontent.cloud/2025/07/22/21/20250722211159-UDHPRGOB.js';
         script2.async = true;
         
         script2.onload = () => {

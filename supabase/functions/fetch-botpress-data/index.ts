@@ -40,8 +40,8 @@ Deno.serve(async (req) => {
 
     // Fetch tables and files from Botpress
     const [tablesResponse, filesResponse] = await Promise.all([
-      client.listTables({}),
-      client.listFiles({})
+      client.listTables({ botId: '9a7d2243-e9d3-4593-b969-4928dec272f5' }),
+      client.listFiles({ botId: '9a7d2243-e9d3-4593-b969-4928dec272f5' })
     ]);
 
     const data: BotpressData = {

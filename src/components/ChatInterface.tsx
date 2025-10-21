@@ -43,7 +43,7 @@ const ChatInterface = () => {
 
       // Charger le premier script Botpress
       const script1 = document.createElement('script');
-      script1.src = 'https://cdn.botpress.cloud/webchat/v3.1/inject.js';
+      script1.src = 'https://cdn.botpress.cloud/webchat/v3.3/inject.js';
       script1.async = true;
       
       script1.onload = () => {
